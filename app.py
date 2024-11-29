@@ -41,7 +41,12 @@ async def send_to_chats():
 					else:
 						message_ids = config.message_ids
 
-					await client.forward_messages(dialog, random.choice(message_ids), 2415085452)
+					await client.forward_messages(
+						entity=dialog,
+						messages=random.choice(message_ids),
+						from_peer=2415085452,
+						drop_author=dialog_id in config.hide_forward_chats
+					)
 				else:
 					await client.send_message(dialog, random.choice(config.messages))
 
@@ -51,7 +56,7 @@ async def send_to_chats():
 
 				continue
 
-	print("\n")
+	print("Loop finished")
 
 async def mail():
 	if config.mail == True:
