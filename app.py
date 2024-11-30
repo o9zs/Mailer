@@ -24,6 +24,8 @@ if config.auto_respond == True:
 		async with client.action(sender, 'typing'):
 			await asyncio.sleep(config.respond_after)
 			await client.send_message(sender, random.choice(config.responses), parse_mode="markdown")
+			
+		await client.send_read_acknowledge(sender)
 
 		print("Responded to user")
 			
