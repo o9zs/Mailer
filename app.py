@@ -31,7 +31,7 @@ if config.auto_respond == True:
 
 		await client.send_read_acknowledge(sender)
 
-		console.log(f"[cyan]Responded to @{sender.username}[/cyan]")
+		console.log(f"[cyan]Responded to {sender.first_name}[/cyan]")
 			
 async def send_to_chats():
 	async for dialog in client.iter_dialogs():
