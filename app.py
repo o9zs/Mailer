@@ -61,6 +61,8 @@ async def send_to_chats():
 				console.log(f"[red]✗ {dialog.name} [gray50]({exception.__class__.__name__})[/gray50][/red]")
 
 				continue
+				
+			await asyncio.sleep(2)
 
 async def mail():
 	if config.mail == True:
