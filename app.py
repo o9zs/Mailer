@@ -1,12 +1,16 @@
 import asyncio
 import random
 
+from rich.console import Console
+
 from telethon import TelegramClient, utils
 from telethon.events import NewMessage
 
 import config
 
 client = TelegramClient("telethon", config.API_ID, config.API_HASH, system_version="5.5.5")
+
+console = Console(highlight=False)
 
 if config.auto_respond == True:
 	cached_users = []
@@ -24,10 +28,10 @@ if config.auto_respond == True:
 		async with client.action(sender, 'typing'):
 			await asyncio.sleep(config.respond_after)
 			await client.send_message(sender, random.choice(config.responses), parse_mode="markdown")
-			
+
 		await client.send_read_acknowledge(sender)
 
-		print("Responded to user")
+		console.log(f"[cyan]Responded to @{sender.username}[/cyan]")
 			
 async def send_to_chats():
 	async for dialog in client.iter_dialogs():
@@ -52,13 +56,11 @@ async def send_to_chats():
 				else:
 					await client.send_message(dialog, random.choice(config.messages))
 
-				print(f"{dialog.name} has been a success")
+				console.log(f"[chartreuse2]✓ {dialog.name}[/chartreuse2]")
 			except Exception as exception:
-				print(f"{dialog.name} says \"{exception}\"")
+				console.log(f"[red]✗ {dialog.name} [gray50]({exception.__class__.__name__})[/gray50][/red]")
 
 				continue
-
-	print("Loop finished")
 
 async def mail():
 	if config.mail == True:
