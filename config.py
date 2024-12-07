@@ -20,9 +20,9 @@ forward_from_channel = True
 
 channel_id = 2415085452
 
-message_ids = [22, 23, 25, 31, 31, 31]
+message_ids = [22, 23, 25, 31, 31, 40, 40]
 per_chat_ids = {
-	1566598220: [35, 36, 38, 39, 39, 39]
+	1566598220: [35, 36, 38, 39, 39, 41, 41]
 }
 
 excluded_chats = [2295959373, 2038629185]
