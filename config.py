@@ -4,10 +4,10 @@ API_HASH = "c3b39a0ffbcc698afb63319c95e97b61"
 invite_link = "https://t.me/+F_nRWmsKzPwxZjk0"
 
 responses = [
-	f"**Весь ворк тут 🤗**\nА также конкурсы, призы и многое другое ↙\n\n[https://t.me/t0rtuga_chat]({invite_link})\n\nА на данный момент идет конкурс [здесь](https://t.me/CryptoBot/app?startapp=giveaway-GHlEp9xBrzdEv-GMVsiKRx3rtshz)",
-	f"**Весь ворк тут 💰**\nА также конкурсы, призы и многое другое ↙\n\n[https://t.me/t0rtuga_chat]({invite_link})\n\nА на данный момент идет конкурс [здесь](https://t.me/CryptoBot/app?startapp=giveaway-GHlEp9xBrzdEv-GMVsiKRx3rtshz)",
-	f"**Весь ворк тут 👾**\nА также конкурсы, призы и многое другое ↙\n\n[https://t.me/t0rtuga_chat]({invite_link})\n\nА на данный момент идет конкурс [здесь](https://t.me/CryptoBot/app?startapp=giveaway-GHlEp9xBrzdEv-GMVsiKRx3rtshz)",
-	f"**Весь ворк тут 💎**\nА также конкурсы, призы и многое другое ↙\n\n[https://t.me/t0rtuga_chat]({invite_link})\n\nА на данный момент идет конкурс [здесь](https://t.me/CryptoBot/app?startapp=giveaway-GHlEp9xBrzdEv-GMVsiKRx3rtshz)"
+	f"**Весь ворк тут 🤗**\nА также конкурсы, призы и многое другое ↙\n\n[https://t.me/t0rtuga_chat]({invite_link})",
+	f"**Весь ворк тут 💰**\nА также конкурсы, призы и многое другое ↙\n\n[https://t.me/t0rtuga_chat]({invite_link})",
+	f"**Весь ворк тут 👾**\nА также конкурсы, призы и многое другое ↙\n\n[https://t.me/t0rtuga_chat]({invite_link})",
+	f"**Весь ворк тут 💎**\nА также конкурсы, призы и многое другое ↙\n\n[https://t.me/t0rtuga_chat]({invite_link})"
 ]
 
 messages = [
@@ -20,9 +20,9 @@ forward_from_channel = True
 
 channel_id = 2415085452
 
-message_ids = [22, 23, 25, 31, 31, 40, 40]
+message_ids = [22, 23, 25, 31, 40, 42, 43, 44, 45]
 per_chat_ids = {
-	1566598220: [35, 36, 38, 39, 39, 41, 41]
+	1566598220: [35, 36, 38, 39, 41, 42, 43, 44, 45]
 }
 
 excluded_chats = [2295959373, 2038629185]
