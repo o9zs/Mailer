@@ -8,9 +8,15 @@ from telethon.events import NewMessage
 
 import config
 
-client = TelegramClient("telethon", config.API_ID, config.API_HASH, system_version="5.5.5")
+client = TelegramClient("telethon", config.API_ID, config.API_HASH, system_version="5.9")
 
 console = Console(highlight=False)
+
+def get_random(value):
+	if type(value) is tuple:
+		value = random.randint(value[0], value[1])
+
+	return value
 
 if config.auto_respond == True:
 	cached_users = []
@@ -22,11 +28,11 @@ if config.auto_respond == True:
 		if sender in cached_users: return
 		cached_users.append(sender)
 
-		await asyncio.sleep(config.read_after)
+		await asyncio.sleep(get_random(config.read_after))
 		await client.send_read_acknowledge(sender)
 
 		async with client.action(sender, 'typing'):
-			await asyncio.sleep(config.respond_after)
+			await asyncio.sleep(get_random(config.respond_after))
 			await client.send_message(sender, random.choice(config.responses), parse_mode="markdown")
 
 		await client.send_read_acknowledge(sender)
@@ -68,8 +74,8 @@ async def mail():
 	if config.mail == True:
 		while True:
 			await send_to_chats()
-			
-			await asyncio.sleep(config.interval)
+
+			await asyncio.sleep(get_random(config.interval))
 
 with client:
     client.loop.create_task(mail())
