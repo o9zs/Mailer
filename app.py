@@ -33,11 +33,7 @@ if config.auto_respond == True:
 
 		async with client.action(sender, 'typing'):
 			await asyncio.sleep(get_random(config.respond_after))
-
-			for response in config.responses:
-				await client.send_message(sender, response, parse_mode="markdown")
-
-				await asyncio.sleep(get_random(config.response_interval))
+			await client.send_message(sender, random.choice(config.responses), parse_mode="markdown")
 
 		await client.send_read_acknowledge(sender)
 
