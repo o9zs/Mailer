@@ -44,7 +44,7 @@ async def send_to_chats():
 		if dialog.is_group:
 			dialog_id, _ = utils.resolve_id(dialog.id)
 
-			if dialog_id in config.excluded_chats: return
+			if dialog_id in config.excluded_chats: continue
 
 			try:
 				if config.forward_from_channel == True:
