@@ -23,7 +23,10 @@ if config.auto_respond == True:
 
 	@client.on(NewMessage(incoming=True, func=lambda e: e.is_private))
 	async def respond(event: NewMessage.Event):
+		me = await client.get_me()
 		sender = await event.get_sender()
+
+		if sender.bot or sender.id == me.id or sender.id == 777000: return
 
 		if sender in cached_users: return
 		cached_users.append(sender)
@@ -44,7 +47,7 @@ async def send_to_chats():
 		if dialog.is_group:
 			dialog_id, _ = utils.resolve_id(dialog.id)
 
-			if dialog_id in config.excluded_chats: return
+			if dialog_id in config.excluded_chats: continue
 
 			try:
 				if config.forward_from_channel == True:
@@ -64,7 +67,11 @@ async def send_to_chats():
 
 				console.log(f"[chartreuse2]✓ {dialog.name}[/chartreuse2]")
 			except Exception as exception:
-				console.log(f"[red]✗ {dialog.name} [gray50]({exception.__class__.__name__})[/gray50][/red]")
+				if type(exception) == ValueError:
+					exception_name = "ValueError... Did you join the channel you're forwarding from? Try sending a message there"
+				else:
+					exception_name = exception.__class__.__name__
+					console.log(f"[red]✗ {dialog.name} [gray50]({exception_name})[/gray50][/red]")
 
 				continue
 				
