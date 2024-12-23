@@ -1,7 +1,7 @@
 API_ID = 27806506
 API_HASH = "c3b39a0ffbcc698afb63319c95e97b61"
 
-invite_link = "https://t.me/+CVDHganalCNlNWNk"
+invite_link = "https://t.me/+2DQ6NK5VihBhZWFk"
 
 responses = []
 
