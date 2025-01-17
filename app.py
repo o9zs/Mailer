@@ -1,4 +1,5 @@
 import asyncio
+import python_socks
 import random
 
 from rich.console import Console
@@ -8,7 +9,29 @@ from telethon.events import NewMessage
 
 import config
 
-client = TelegramClient("telethon", config.API_ID, config.API_HASH, system_version="5.9")
+if config.proxy:
+	proxy = config.proxy
+
+	auth = proxy.split("@")[0]
+	host = proxy.split("@")[1]
+
+	username = auth.split(":")[0]
+	password = auth.split(":")[1]
+
+	ip = host.split(":")[0]
+	port = host.split(":")[1]
+
+	proxy = {
+		"proxy_type": python_socks.ProxyType.SOCKS5,
+		"addr": ip,
+		"port": int(port),
+		"username": username,
+		"password": password
+	}
+else:
+	proxy = None
+
+client = TelegramClient("telethon", config.API_ID, config.API_HASH, system_version="5.10.3", proxy=proxy)
 
 console = Console(highlight=False)
 

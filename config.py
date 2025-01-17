@@ -10,6 +10,8 @@ for emoji in ("🤗💰👾💎"):
 
 messages = []
 
+proxy = "fwafaq:KjwouzQ1www@109.248.49.91:5501" # {login}:{password}@{ip}:{port}
+
 mail = True
 auto_respond = True
 forward_from_channel = True
