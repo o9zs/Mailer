@@ -42,7 +42,7 @@ def get_random(value):
 	return value
 
 if config.auto_respond == True:
-	cached_users = []
+	cached_ids = []
 
 	@client.on(NewMessage(incoming=True, func=lambda e: e.is_private))
 	async def respond(event: NewMessage.Event):
@@ -51,8 +51,8 @@ if config.auto_respond == True:
 
 		if sender.bot or sender.id == me.id or sender.id == 777000: return
 
-		if sender in cached_users: return
-		cached_users.append(sender)
+		if sender.id in cached_ids: return
+		cached_ids.append(sender.id)
 
 		await asyncio.sleep(get_random(config.read_after))
 		await client.send_read_acknowledge(sender)
