@@ -1,6 +1,7 @@
 import asyncio
-import python_socks
+import os
 import random
+import sys
 
 from rich.console import Console
 
@@ -8,6 +9,8 @@ from telethon import TelegramClient, utils
 from telethon.events import NewMessage
 
 import config
+
+proxy = None
 
 if config.proxy:
 	proxy = config.proxy
@@ -22,16 +25,34 @@ if config.proxy:
 	port = host.split(":")[1]
 
 	proxy = {
-		"proxy_type": python_socks.ProxyType.SOCKS5,
+		"proxy_type": 2, # 1 - SOCKS4, 2 - SOCKS5, 3 - HTTP
 		"addr": ip,
 		"port": int(port),
 		"username": username,
 		"password": password
 	}
-else:
-	proxy = None
 
-client = TelegramClient("telethon", config.API_ID, config.API_HASH, system_version="5.10.3", proxy=proxy)
+session = None
+
+if len(sys.argv) > 1:
+	sessions = os.path.expandvars(config.sessions or ".")
+	sessions = os.path.abspath(sessions)
+
+	session = " ".join(sys.argv[1:])
+	session = os.path.join(sessions, session)
+else:
+	for file in os.listdir():
+		if file.endswith(".session"):
+			session = file
+
+			break
+
+if session:
+	session = os.path.splitext(session)[0]
+else:
+	session = "telethon"
+
+client = TelegramClient(session, config.API_ID, config.API_HASH, system_version="5.9", proxy=proxy)
 
 console = Console(highlight=False)
 
@@ -66,6 +87,8 @@ if config.auto_respond == True:
 		console.log(f"[cyan]Responded to {sender.first_name}[/cyan]")
 			
 async def send_to_chats():
+	me = await client.get_me()
+
 	async for dialog in client.iter_dialogs():
 		if dialog.is_group:
 			dialog_id, _ = utils.resolve_id(dialog.id)
@@ -82,8 +105,8 @@ async def send_to_chats():
 					await client.forward_messages(
 						entity=dialog,
 						messages=random.choice(message_ids),
-						from_peer=2415085452,
-						drop_author=dialog_id in config.hide_forward_chats
+						from_peer=config.channel_id,
+						drop_author=dialog_id in config.hide_forward_chats or me.premium
 					)
 				else:
 					await client.send_message(dialog, random.choice(config.messages))
