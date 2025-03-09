@@ -27,6 +27,7 @@ per_chat_ids = {}
 excluded_chats = [2295959373, 2038629185, 2447721413] # Sharoebi, TORTUGA, AsgarDoline
 hide_forward_chats = [2091490622, 2315505220]
 
-interval = (300, 600)
+loop_interval = (300, 600)
+message_interval = (2, 5)
 read_after = (2, 5)
 respond_after = (2, 5)
