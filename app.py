@@ -130,6 +130,8 @@ async def send_to_chats():
 				console.log(f"[yellow]🚫 {dialog.name} [gray50](вам запрещено состоять в публичных группах)[/gray50][/yellow]")
 			except (UserDeactivatedBanError, UserDeactivatedError):
 				console.log(f"[yellow]✗ {dialog.name} [gray50](вы заблокированы)[/gray50][/yellow]")
+
+				exit()
 			except Exception as exception:
 				raise exception
 				
