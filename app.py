@@ -123,9 +123,7 @@ async def send_to_chats():
 
 				await asyncio.sleep(error.seconds)
 			except SlowModeWaitError as error:
-				console.log(f"[yellow]⏳ {dialog.name} [gray50](слоумоуд, ожидание {error.seconds} секунд)[/gray50][/yellow]")
-
-				await asyncio.sleep(error.seconds)
+				console.log(f"[yellow]⏳ {dialog.name} [gray50](слоумоуд, осталось {error.seconds} секунд)[/gray50][/yellow]")
 			except UserBannedInChannelError:
 				console.log(f"[yellow]🚫 {dialog.name} [gray50](вам запрещено состоять в публичных группах)[/gray50][/yellow]")
 			except (UserDeactivatedBanError, UserDeactivatedError):
