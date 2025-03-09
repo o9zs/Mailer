@@ -7,6 +7,7 @@ from rich.console import Console
 
 from telethon import TelegramClient, utils
 from telethon.events import NewMessage
+from telethon.errors import ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
 
 import config
 
@@ -113,23 +114,33 @@ async def send_to_chats():
 					await client.send_message(dialog, random.choice(config.messages))
 
 				console.log(f"[chartreuse2]✓ {dialog.name}[/chartreuse2]")
-			except Exception as exception:
-				if type(exception) == ValueError:
-					exception_name = "ValueError... Did you join the channel you're forwarding from? Try sending a message there"
-				else:
-					exception_name = exception.__class__.__name__
-					console.log(f"[red]✗ {dialog.name} [gray50]({exception_name})[/gray50][/red]")
+			except ChatRestrictedError:
+				await dialog.delete()
+			except ChatWriteForbiddenError:
+				console.log(f"[yellow]🔇 {dialog.name} [gray50](обеззвучен)[/gray50][/yellow]")
+			except FloodWaitError as error:
+				console.log(f"[yellow]⏳ {dialog.name} [gray50](флуд, ожидание {error.seconds} секунд)[/gray50][/yellow]")
 
-				continue
+				await asyncio.sleep(error.seconds)
+			except SlowModeWaitError as error:
+				console.log(f"[yellow]⏳ {dialog.name} [gray50](слоумоуд, ожидание {error.seconds} секунд)[/gray50][/yellow]")
+
+				await asyncio.sleep(error.seconds)
+			except UserBannedInChannelError:
+				console.log(f"[yellow]🚫 {dialog.name} [gray50](вам запрещено состоять в публичных группах)[/gray50][/yellow]")
+			except (UserDeactivatedBanError, UserDeactivatedError):
+				console.log(f"[yellow]✗ {dialog.name} [gray50](вы заблокированы)[/gray50][/yellow]")
+			except Exception as exception:
+				raise exception
 				
-			await asyncio.sleep(2)
+			await asyncio.sleep(get_random(config.message_interval))
 
 async def mail():
 	if config.mail == True:
 		while True:
 			await send_to_chats()
 
-			await asyncio.sleep(get_random(config.interval))
+			await asyncio.sleep(get_random(config.loop_interval))
 
 with client:
     client.loop.create_task(mail())
