@@ -32,20 +32,21 @@ if config.proxy:
 		"password": password
 	}
 
-session = None
+session = config.session or None
 
-if len(sys.argv) > 1:
-	sessions = os.path.expandvars(config.sessions or ".")
-	sessions = os.path.abspath(sessions)
+if session == None:
+	if len(sys.argv) > 1:
+		sessions = os.path.expandvars(config.sessions or ".")
+		sessions = os.path.abspath(sessions)
 
-	session = " ".join(sys.argv[1:])
-	session = os.path.join(sessions, session)
-else:
-	for file in os.listdir():
-		if file.endswith(".session"):
-			session = file
+		session = " ".join(sys.argv[1:])
+		session = os.path.join(sessions, session)
+	else:
+		for file in os.listdir():
+			if file.endswith(".session"):
+				session = file
 
-			break
+				break
 
 if session:
 	session = os.path.splitext(session)[0]

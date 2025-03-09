@@ -12,6 +12,7 @@ messages = []
 
 proxy = "" # login:password@ip:port
 
+session = ""
 sessions = "../sessions"
 
 mail = True
