@@ -119,19 +119,17 @@ async def send_to_chats():
 			except ChatWriteForbiddenError:
 				console.log(f"[yellow]🔇 {dialog.name} [gray50](обеззвучен)[/gray50][/yellow]")
 			except FloodWaitError as error:
-				console.log(f"[yellow]⏳ {dialog.name} [gray50](флуд, ожидание {error.seconds} секунд)[/gray50][/yellow]")
+				console.log(f"[yellow]🌊 {dialog.name} [gray50](флуд, ожидание {error.seconds} секунд)[/gray50][/yellow]")
 
 				await asyncio.sleep(error.seconds)
 			except SlowModeWaitError as error:
 				console.log(f"[yellow]⏳ {dialog.name} [gray50](слоумоуд, осталось {error.seconds} секунд)[/gray50][/yellow]")
 			except UserBannedInChannelError:
 				console.log(f"[yellow]🚫 {dialog.name} [gray50](вам запрещено состоять в публичных группах)[/gray50][/yellow]")
-			except (UserDeactivatedBanError, UserDeactivatedError):
-				console.log(f"[yellow]✗ {dialog.name} [gray50](вы заблокированы)[/gray50][/yellow]")
-
-				exit()
+			except (UserDeactivatedBanError, UserDeactivatedError) as error:
+				console.log(f"[red]✗ Вы забанены![/red]")
 			except Exception as exception:
-				raise exception
+				console.log(f"[red]✗ {dialog.name} [gray50]({exception})[/gray50][/red]")
 				
 			await asyncio.sleep(get_random(config.message_interval))
 
@@ -144,4 +142,4 @@ async def mail():
 
 with client:
     client.loop.create_task(mail())
-    client.loop.run_forever()
+    client.run_until_disconnected()
