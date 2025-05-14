@@ -1,6 +1,7 @@
 import asyncio
 import os
 import random
+import sqlite3
 import sys
 
 from rich.console import Console
@@ -11,50 +12,20 @@ from telethon.errors import ChannelForumMissingError, ChatRestrictedError, ChatW
 
 import config
 
-proxy = None
+if len(sys.argv) > 1:
+	session = " ".join(sys.argv[1:])
 
-if config.proxy:
-	proxy = config.proxy
+	with open("session.txt", "w") as file:
+		file.write(session)
 
-	auth = proxy.split("@")[0]
-	host = proxy.split("@")[1]
-
-	username = auth.split(":")[0]
-	password = auth.split(":")[1]
-
-	ip = host.split(":")[0]
-	port = host.split(":")[1]
-
-	proxy = {
-		"proxy_type": 2, # 1 - SOCKS4, 2 - SOCKS5, 3 - HTTP
-		"addr": ip,
-		"port": int(port),
-		"username": username,
-		"password": password
-	}
-
-session = config.session or None
-
-if session == None:
-	if len(sys.argv) > 1:
-		sessions = os.path.expandvars(config.sessions or ".")
-		sessions = os.path.abspath(sessions)
-
-		session = " ".join(sys.argv[1:])
-		session = os.path.join(sessions, session)
-	else:
-		for file in os.listdir():
-			if file.endswith(".session"):
-				session = file
-
-				break
-
-if session:
-	session = os.path.splitext(session)[0]
+	session = os.path.join(config.sessions, session)
 else:
-	session = "telethon"
+	with open("session.txt", "r") as file:
+		session = file.read()
 
-client = TelegramClient(session, config.API_ID, config.API_HASH, system_version="5.9", proxy=proxy)
+	session = os.path.join(config.sessions, session)
+
+client = TelegramClient(session, config.API_ID, config.API_HASH, system_version="5.9")
 
 console = Console(highlight=False)
 
@@ -150,6 +121,14 @@ async def mail():
 			await send_to_chats()
 
 			await asyncio.sleep(get_random(config.loop_interval))
+
+connection = sqlite3.connect(os.path.join(config.sessions, "cache.db"))
+cursor = connection.cursor()
+
+cursor.execute("UPDATE cache SET task = ? WHERE session = ?", (config.task, os.path.basename(session)))
+
+connection.commit()
+connection.close()
 
 with client:
     client.loop.create_task(mail())

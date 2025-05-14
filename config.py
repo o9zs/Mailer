@@ -10,10 +10,9 @@ for emoji in ("🤗💰👾💎"):
 
 messages = []
 
-proxy = "" # login:password@ip:port
+sessions = "../../sessions"
 
-session = ""
-sessions = "../sessions"
+task = ""
 
 mail = True
 auto_respond = True
