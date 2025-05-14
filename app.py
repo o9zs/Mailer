@@ -13,7 +13,7 @@ from telethon.errors import ChannelForumMissingError, ChatRestrictedError, ChatW
 import config
 
 if len(sys.argv) > 1:
-	session = " ".join(sys.argv[1:])
+	session = " ".join(sys.argv[1:]).strip()
 
 	with open("session.txt", "w") as file:
 		file.write(session)
@@ -21,7 +21,7 @@ if len(sys.argv) > 1:
 	session = os.path.join(config.sessions, session)
 else:
 	with open("session.txt", "r") as file:
-		session = file.read()
+		session = file.read().strip()
 
 	session = os.path.join(config.sessions, session)
 
