@@ -160,9 +160,9 @@ async def mail():
 		while True:
 			await send_to_chats()
 
-			last_loop = time.time()
-
 			await asyncio.sleep(get_random(config.loop_interval))
+
+			last_loop = time.time()
 
 connection = sqlite3.connect(os.path.join(config.sessions, "cache.db"))
 cursor = connection.cursor()
