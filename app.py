@@ -1,8 +1,10 @@
 import asyncio
 import os
 import random
+import re
 import sqlite3
 import sys
+import time
 
 from rich.console import Console
 
@@ -60,6 +62,40 @@ if config.auto_respond == True:
 		console.log(f"[cyan]Responded to {sender.first_name}[/cyan]")
 			
 async def send_to_chats():
+	global last_loop
+
+	if time.time() - last_loop >= 15 * 60:
+		async with client.conversation("@SpamBot") as conversation:
+			await conversation.send_message("/start")
+
+			response = await conversation.get_response()
+			await conversation.mark_read()
+
+		if "Ограничения будут автоматически сняты" in response.text:
+			spamblock = "до " + re.search(
+				r"Ограничения будут автоматически сняты (.*?) \(по московскому времени — на три часа позже\)",
+				response.text
+			).group(1)
+		elif "Your account will be automatically released" in response.text:
+			spamblock = "до " + re.search(
+				r"Your account will be automatically released on (.*?)\. Please note that if you repeat what got you limited and users report you again",
+				response.text
+			).group(1)
+		elif "К сожалению, иногда наша антиспам-система излишне сурово реагирует на некоторые действия" in response.text or "Unfortunately, some actions can trigger a harsh response from our anti-spam systems" in response.text:
+			spamblock = "вечный"
+		elif "Ваш аккаунт свободен" in response.text or "You’re free as a bird" in response.text:
+			spamblock = "отсутствует"
+
+		connection = sqlite3.connect(os.path.join(config.sessions, "cache.db"))
+		cursor = connection.cursor()
+
+		cursor.execute("UPDATE cache SET spamblock = ? WHERE session = ?", (spamblock, os.path.basename(session)))
+
+		connection.commit()
+		connection.close()
+
+		console.log(f"🛢️ Cached spamblock status: {spamblock}")
+
 	me = await client.get_me()
 
 	async for dialog in client.iter_dialogs():
@@ -115,10 +151,16 @@ async def send_to_chats():
 				
 			await asyncio.sleep(get_random(config.message_interval))
 
+last_loop = time.time()
+
 async def mail():
+	global last_loop
+
 	if config.mail == True:
 		while True:
 			await send_to_chats()
+
+			last_loop = time.time()
 
 			await asyncio.sleep(get_random(config.loop_interval))
 
