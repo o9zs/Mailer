@@ -173,5 +173,7 @@ connection.commit()
 connection.close()
 
 with client:
-    client.loop.create_task(mail())
-    client.run_until_disconnected()
+	console.log(f"Running on [bold]{session}[/bold]...")
+	
+	client.loop.create_task(mail())
+	client.run_until_disconnected()
