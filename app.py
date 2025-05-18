@@ -4,7 +4,7 @@ import random
 import re
 import sqlite3
 import sys
-import time
+from datetime import datetime, timedelta
 
 from rich.console import Console
 
@@ -62,9 +62,13 @@ if config.auto_respond == True:
 		console.log(f"[cyan]Responded to {sender.first_name}[/cyan]")
 			
 async def send_to_chats():
-	global last_loop
+	last_check = 0
+	last_messages = await client.get_messages("SpamBot", 1)
 
-	if time.time() - last_loop >= 15 * 60:
+	if last_messages:
+		last_check = last_messages[0].date
+
+	if datetime.now(last_check.tzinfo) - last_check >= timedelta(minutes=15):
 		async with client.conversation("@SpamBot") as conversation:
 			await conversation.send_message("/start")
 
@@ -151,18 +155,12 @@ async def send_to_chats():
 				
 			await asyncio.sleep(get_random(config.message_interval))
 
-last_loop = time.time()
-
 async def mail():
-	global last_loop
-
 	if config.mail == True:
 		while True:
 			await send_to_chats()
 
 			await asyncio.sleep(get_random(config.loop_interval))
-
-			last_loop = time.time()
 
 connection = sqlite3.connect(os.path.join(config.sessions, "cache.db"))
 cursor = connection.cursor()
