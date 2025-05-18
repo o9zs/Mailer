@@ -10,7 +10,7 @@ from rich.console import Console
 
 from telethon import TelegramClient, functions, utils
 from telethon.events import NewMessage
-from telethon.errors import ChannelForumMissingError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
+from telethon.errors import ChannelForumMissingError, ChannelInvalidError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
 
 import config
 
@@ -109,7 +109,7 @@ async def send_to_chats():
 					dialog_id,
 					0, 0, 0, 1
 				))
-			except ChannelForumMissingError: pass
+			except (ChannelForumMissingError, ChannelInvalidError): pass
 			else:
 				console.log(f"[yellow]📜 {dialog.name} [gray50](чат содержит темы)[/gray50][/yellow]")
 
