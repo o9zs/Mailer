@@ -68,7 +68,9 @@ async def send_to_chats():
 	if last_messages:
 		last_check = last_messages[0].date
 
-	if datetime.now(last_check.tzinfo) - last_check >= timedelta(minutes=15):
+		if type(last_check) != datetime: last_check = None
+
+	if last_check and datetime.now(last_check.tzinfo) - last_check >= timedelta(minutes=15):
 		async with client.conversation("@SpamBot") as conversation:
 			await conversation.send_message("/start")
 
