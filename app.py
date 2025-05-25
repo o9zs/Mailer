@@ -121,6 +121,13 @@ async def send_to_chats():
 
 				continue
 
+			reply_to = None
+
+			if config.random_reply:
+				async for message in client.iter_messages(dialog, 3):
+					if not message.sender.bot:
+						reply_to = message
+
 			try:
 				if config.forward_from_channel == True:
 					if dialog_id in config.per_chat_ids:
@@ -128,14 +135,19 @@ async def send_to_chats():
 					else:
 						message_ids = config.message_ids
 
-					await client.forward_messages(
-						entity=dialog,
-						messages=random.choice(message_ids),
-						from_peer=config.channel_id,
-						drop_author=dialog_id in config.hide_forward_chats or me.premium
-					)
+					if dialog_id in config.hide_forward_chats or config.force_hide_forward or me.premium:
+						message = await client.get_messages(config.channel_id, ids=random.choice(message_ids))
+
+						await client.send_message(dialog, message.text, reply_to=reply_to)
+					else:
+						await client.forward_messages(
+							entity=dialog,
+							messages=random.choice(message_ids),
+							from_peer=config.channel_id
+						)
 				else:
-					await client.send_message(dialog, random.choice(config.messages))
+
+					await client.send_message(dialog, random.choice(config.messages), reply_to=reply_to)
 
 				console.log(f"[chartreuse2]✓ {dialog.name}[/chartreuse2]")
 			except ChatRestrictedError:
