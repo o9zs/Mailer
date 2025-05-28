@@ -10,7 +10,7 @@ from rich.console import Console
 
 from telethon import TelegramClient, functions, utils
 from telethon.events import NewMessage
-from telethon.errors import ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, RPCError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
+from telethon.errors import ChatGuestSendForbiddenError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, RPCError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
 
 import config
 
@@ -62,7 +62,7 @@ if config.auto_respond == True:
 		console.log(f"[cyan]Responded to [bold white]{sender.first_name}[/bold white][/cyan]")
 
 if config.comment_in_channels == True:
-	@client.on(NewMessage(incoming=True, func=lambda e: e.is_channel and e.chat.broadcast))
+	@client.on(NewMessage(incoming=True, func=lambda e: e.is_channel and e.chat and e.chat.broadcast))
 	async def comment(event: NewMessage.Event):
 		try:
 			if config.forward_from_channel == True:
@@ -85,7 +85,7 @@ if config.comment_in_channels == True:
 				return
 			else:
 				raise
-		except MsgIdInvalidError:
+		except (ChatGuestSendForbiddenError, MsgIdInvalidError):
 			return
 
 		console.log(f"[cyan]🧻 Commented on post [bold white]#{event.message.id}[/bold white] in channel [bold white]{event.chat.title}[/bold white][/cyan]")
@@ -240,6 +240,8 @@ async def mail():
 								continue
 							else:
 								raise
+						except ChatGuestSendForbiddenError:
+							continue
 
 						console.log(f"[cyan]🧻 Commented on post [bold white]#{dialog.message.id}[/bold white] in channel [bold white]{dialog.name}[/bold white][/cyan] [gray50](post-fire)[/gray50]")
 				except MsgIdInvalidError:
