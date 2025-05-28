@@ -19,6 +19,7 @@ auto_respond = True
 random_reply = True
 forward_from_channel = True
 force_hide_forward = False
+comment_in_channels = False
 
 channel_id = 2415085452
 

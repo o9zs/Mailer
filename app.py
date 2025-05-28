@@ -10,7 +10,7 @@ from rich.console import Console
 
 from telethon import TelegramClient, functions, utils
 from telethon.events import NewMessage
-from telethon.errors import ChannelForumMissingError, ChannelInvalidError, ChannelPrivateError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
+from telethon.errors import ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, RPCError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
 
 import config
 
@@ -59,7 +59,36 @@ if config.auto_respond == True:
 
 		await client.send_read_acknowledge(sender)
 
-		console.log(f"[cyan]Responded to {sender.first_name}[/cyan]")
+		console.log(f"[cyan]Responded to [bold white]{sender.first_name}[/bold white][/cyan]")
+
+if config.comment_in_channels == True:
+	@client.on(NewMessage(incoming=True, func=lambda e: e.is_channel and e.chat.broadcast))
+	async def comment(event: NewMessage.Event):
+		try:
+			if config.forward_from_channel == True:
+				message = await client.get_messages(config.channel_id, ids=random.choice(config.message_ids))
+
+				await client.send_message(
+					event.chat,
+					message.raw_text,
+					comment_to=event.message.id,
+					formatting_entities=message.entities
+				)
+			else:
+				await client.send_message(
+					event.chat,
+					random.choice(config.messages),
+					comment_to=event.message.id
+				)
+		except RPCError as error:
+			if error.message == "ALLOW_PAYMENT_REQUIRED":
+				return
+			else:
+				raise
+		except MsgIdInvalidError:
+			return
+
+		console.log(f"[cyan]🧻 Commented on post [bold white]#{event.message.id}[/bold white] in channel [bold white]{event.chat.title}[/bold white][/cyan]")
 			
 async def send_to_chats():
 	last_check = 0
@@ -138,7 +167,12 @@ async def send_to_chats():
 					if dialog_id in config.hide_forward_chats or config.force_hide_forward or me.premium:
 						message = await client.get_messages(config.channel_id, ids=random.choice(message_ids))
 
-						await client.send_message(dialog, message.text, reply_to=reply_to)
+						await client.send_message(
+							dialog,
+							message.raw_text,
+							formatting_entities=message.entities,
+							reply_to=reply_to
+						)
 					else:
 						await client.forward_messages(
 							entity=dialog,
@@ -146,8 +180,11 @@ async def send_to_chats():
 							from_peer=config.channel_id
 						)
 				else:
-
-					await client.send_message(dialog, random.choice(config.messages), reply_to=reply_to)
+					await client.send_message(
+						dialog,
+						random.choice(config.messages),
+						reply_to=reply_to
+					)
 
 				console.log(f"[chartreuse2]✓ {dialog.name}[/chartreuse2]")
 			except ChatRestrictedError:
@@ -170,6 +207,44 @@ async def send_to_chats():
 			await asyncio.sleep(get_random(config.message_interval))
 
 async def mail():
+	if config.comment_in_channels == True:
+		async for dialog in client.iter_dialogs():
+			if dialog.is_channel and dialog.entity.broadcast:
+				me = await client.get_me()
+				
+				try:
+					async for message in client.iter_messages(dialog, reply_to=dialog.message.id, reverse=True):
+						sender = await message.get_sender()
+
+						if sender.id == me.id:
+							break
+					else:
+						try:
+							if config.forward_from_channel == True:
+								message = await client.get_messages(config.channel_id, ids=random.choice(config.message_ids))
+
+								await client.send_message(
+									dialog,
+									message.raw_text,
+									comment_to=dialog.message.id,
+									formatting_entities=dialog.message.entities
+								)
+							else:
+								await client.send_message(
+									dialog,
+									random.choice(config.messages),
+									comment_to=dialog.message.id
+								)
+						except RPCError as error:
+							if error.message == "ALLOW_PAYMENT_REQUIRED":
+								continue
+							else:
+								raise
+
+						console.log(f"[cyan]🧻 Commented on post [bold white]#{dialog.message.id}[/bold white] in channel [bold white]{dialog.name}[/bold white][/cyan] [gray50](post-fire)[/gray50]")
+				except MsgIdInvalidError:
+					pass
+
 	if config.mail == True:
 		while True:
 			await send_to_chats()
@@ -185,7 +260,7 @@ connection.commit()
 connection.close()
 
 with client:
-	console.log(f"Running on [bold]{session}[/bold]...")
+	console.log(f"Running on [bold]{session}[/bold]")
 	
 	client.loop.create_task(mail())
 	client.run_until_disconnected()
