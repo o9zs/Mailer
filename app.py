@@ -10,7 +10,7 @@ from rich.console import Console
 
 from telethon import TelegramClient, functions, utils
 from telethon.events import NewMessage
-from telethon.errors import ChatGuestSendForbiddenError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, RPCError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
+from telethon.errors import AuthKeyError, ChatGuestSendForbiddenError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
 
 import config
 
@@ -80,7 +80,7 @@ if config.comment_in_channels == True:
 					random.choice(config.messages),
 					comment_to=event.message.id
 				)
-		except RPCError as error:
+		except AuthKeyError as error:
 			if error.message == "ALLOW_PAYMENT_REQUIRED":
 				return
 			else:
@@ -235,7 +235,7 @@ async def mail():
 									random.choice(config.messages),
 									comment_to=dialog.message.id
 								)
-						except RPCError as error:
+						except AuthKeyError as error:
 							if error.message == "ALLOW_PAYMENT_REQUIRED":
 								continue
 							else:
