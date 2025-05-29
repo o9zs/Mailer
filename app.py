@@ -158,7 +158,9 @@ async def send_to_chats():
 
 			if config.random_reply:
 				async for message in client.iter_messages(dialog, 3):
-					if not message.sender.bot:
+					sender = await message.get_sender()
+
+					if sender and not sender.bot:
 						reply_to = message
 
 			try:
