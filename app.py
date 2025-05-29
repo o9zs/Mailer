@@ -216,6 +216,9 @@ async def mail():
 					async for message in client.iter_messages(dialog, reply_to=dialog.message.id, reverse=True):
 						sender = await message.get_sender()
 
+						if sender == None:
+							continue
+
 						if sender.id == me.id:
 							break
 					else:
