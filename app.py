@@ -10,7 +10,7 @@ from rich.console import Console
 
 from telethon import TelegramClient, functions, utils
 from telethon.events import NewMessage
-from telethon.errors import AuthKeyError, ChatGuestSendForbiddenError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
+from telethon.errors import AuthKeyError, ChatGuestSendForbiddenError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, RPCError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
 
 import config
 
@@ -87,6 +87,8 @@ if config.comment_in_channels == True:
 				raise
 		except (ChatGuestSendForbiddenError, MsgIdInvalidError):
 			return
+		except RPCError as error:
+			console.log(f"[red]❌ RPCError while commenting: {str(error)}[/red]")
 
 		console.log(f"[cyan]🧻 Commented on post [bold white]#{event.message.id}[/bold white] in channel [bold white]{event.chat.title}[/bold white][/cyan]")
 			
@@ -245,6 +247,8 @@ async def mail():
 								raise
 						except ChatGuestSendForbiddenError:
 							continue
+						except RPCError as error:
+							console.log(f"[red]❌ RPCError while commenting: {str(error)} [gray50](post-fire)[/gray50][/red]")
 
 						console.log(f"[cyan]🧻 Commented on post [bold white]#{dialog.message.id}[/bold white] in channel [bold white]{dialog.name}[/bold white][/cyan] [gray50](post-fire)[/gray50]")
 				except MsgIdInvalidError:
@@ -268,4 +272,4 @@ with client:
 	console.log(f"Running on [bold]{session}[/bold]")
 	
 	client.loop.create_task(mail())
-	client.run_until_disconnected()
+	client.loop.run_forever()
