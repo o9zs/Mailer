@@ -90,6 +90,8 @@ if config.comment_in_channels == True:
 		except RPCError as error:
 			console.log(f"[red]❌ RPCError while commenting: {str(error)}[/red]")
 
+			return
+
 		console.log(f"[cyan]🧻 Commented on post [bold white]#{event.message.id}[/bold white] in channel [bold white]{event.chat.title}[/bold white][/cyan]")
 			
 async def send_to_chats():
@@ -249,6 +251,8 @@ async def mail():
 							continue
 						except RPCError as error:
 							console.log(f"[red]❌ RPCError while commenting: {str(error)} [gray50](post-fire)[/gray50][/red]")
+
+							continue
 
 						console.log(f"[cyan]🧻 Commented on post [bold white]#{dialog.message.id}[/bold white] in channel [bold white]{dialog.name}[/bold white][/cyan] [gray50](post-fire)[/gray50]")
 				except MsgIdInvalidError:
