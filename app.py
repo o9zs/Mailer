@@ -160,8 +160,11 @@ async def send_to_chats():
 				async for message in client.iter_messages(dialog, 3):
 					sender = await message.get_sender()
 
-					if sender and not sender.bot:
-						reply_to = message
+					try:
+						if sender and not sender.bot:
+							reply_to = message
+					except AttributeError:
+						continue
 
 			try:
 				if config.forward_from_channel == True:
