@@ -10,7 +10,7 @@ from rich.console import Console
 
 from telethon import TelegramClient, functions, utils
 from telethon.events import NewMessage
-from telethon.errors import AuthKeyError, ChatGuestSendForbiddenError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, RPCError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
+from telethon.errors import AuthKeyError, ChannelPrivateError, ChatGuestSendForbiddenError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, RPCError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
 
 import config
 
@@ -88,7 +88,7 @@ if config.comment_in_channels == True:
 		except (ChatGuestSendForbiddenError, MsgIdInvalidError):
 			return
 		except RPCError as error:
-			console.log(f"[red]❌ RPCError while commenting: {str(error)}[/red]")
+			console.log(f"[red]❌ RPCError while commenting: {error}[/red]")
 
 			return
 
@@ -157,14 +157,17 @@ async def send_to_chats():
 			reply_to = None
 
 			if config.random_reply:
-				async for message in client.iter_messages(dialog, 3):
-					sender = await message.get_sender()
+				try:
+					async for message in client.iter_messages(dialog, 3):
+						sender = await message.get_sender()
 
-					try:
-						if sender and not sender.bot:
-							reply_to = message
-					except AttributeError:
-						continue
+						try:
+							if sender and not sender.bot:
+								reply_to = message
+						except AttributeError:
+							continue
+				except RPCError as error:
+					console.log(f"[red]❌ RPCError while randomly replying: {error}[/red]")
 
 			try:
 				if config.forward_from_channel == True:
@@ -255,7 +258,7 @@ async def mail():
 						except ChatGuestSendForbiddenError:
 							continue
 						except RPCError as error:
-							console.log(f"[red]❌ RPCError while commenting: {str(error)} [gray50](post-fire)[/gray50][/red]")
+							console.log(f"[red]❌ RPCError while commenting: {error} [gray50](post-fire)[/gray50][/red]")
 
 							continue
 
