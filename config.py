@@ -27,6 +27,7 @@ message_ids = [22, 23, 25, 31, 40, 42, 43, 44, 45, 52, 53, 54, 55, 56, 57, 58]
 per_chat_ids = {}
 
 excluded_chats = [2295959373, 2038629185, 2447721413] # Sharoebi, TORTUGA, AsgarDoline
+non_discussion_groups = [1777712647, 2024348391]
 hide_forward_chats = [2091490622, 2315505220]
 
 loop_interval = (300, 600)

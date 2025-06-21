@@ -11,6 +11,7 @@ from rich.console import Console
 from telethon import TelegramClient, functions, utils
 from telethon.events import NewMessage
 from telethon.errors import AuthKeyError, ChannelPrivateError, ChatGuestSendForbiddenError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, RPCError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
+from telethon.types import InputMessagesFilterPinned, PeerChannel
 
 import config
 
@@ -142,13 +143,24 @@ async def send_to_chats():
 			dialog_id, _ = utils.resolve_id(dialog.id)
 
 			if dialog_id in config.excluded_chats: continue
+
+			if dialog_id not in config.non_discussion_groups:
+				pinned_messages = await client.get_messages(dialog_id, limit=3, filter=InputMessagesFilterPinned)
+
+				if any([isinstance(pinned_message.from_id, PeerChannel) for pinned_message in pinned_messages]):
+					config.excluded_chats.append(dialog_id)
+
+					continue
+				else:
+					config.non_discussion_groups.append(dialog_id)
 			
 			try:
 				await client(functions.channels.GetForumTopicsRequest(
 					dialog_id,
 					0, 0, 0, 1
 				))
-			except: pass
+			except:
+				pass
 			else:
 				console.log(f"[yellow]📜 {dialog.name} [gray50](чат содержит темы)[/gray50][/yellow]")
 
@@ -284,4 +296,4 @@ with client:
 	console.log(f"Running on [bold]{session}[/bold]")
 	
 	client.loop.create_task(mail())
-	client.loop.run_forever()
+	client.loop.run_until_complete()
