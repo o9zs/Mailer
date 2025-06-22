@@ -11,7 +11,7 @@ from rich.console import Console
 from telethon import TelegramClient, functions, utils
 from telethon.events import NewMessage
 from telethon.errors import AuthKeyError, ChannelPrivateError, ChatGuestSendForbiddenError, ChatRestrictedError, ChatWriteForbiddenError, FloodWaitError, MsgIdInvalidError, RPCError, SlowModeWaitError, UserBannedInChannelError, UserDeactivatedBanError, UserDeactivatedError
-from telethon.types import InputMessagesFilterPinned, PeerChannel
+from telethon.types import InputMessagesFilterPinned, PeerChannel, User
 
 import config
 
@@ -61,6 +61,52 @@ if config.auto_respond == True:
 		await client.send_read_acknowledge(sender)
 
 		console.log(f"[cyan]Responded to [bold white]{sender.first_name}[/bold white][/cyan]")
+
+	@client.on(NewMessage(outgoing=True, func=lambda e: e.chat.is_self))
+	async def cache(event: NewMessage.Event):
+		me = await client.get_me()
+
+		if event.raw_text.startswith(".cache "):
+			user = event.raw_text.split()[1]
+
+			try:
+				user_id = int(user)
+			except ValueError:
+				if user.startswith("@"):
+					user = user[1:]
+				elif user.startswith(("https://t.me/", "t.me/")):
+					user = user.replace("https://t.me/", "").replace("t.me/", "")
+				else:
+					return await client.edit_message(event.chat, event.message, "❌ Unrecognized input")
+
+				user = await client.get_entity(user)
+
+				if not isinstance(user, User):
+					return await client.edit_message(event.chat, event.message, "❌ Not a user")
+				
+				user_id = user.id
+
+			if user_id in cached_ids:
+					return await client.edit_message(event.chat, event.message, "❌ Already cached")
+
+			cached_ids.append(user_id)
+
+			text = f"✅ Successfully cached user {user_id}"
+			
+			if isinstance(user, User):
+				text += " " + "("
+
+				if user.username:
+					text += f"@{user.username}"
+				else:
+					text += user.first_name
+
+					if user.last_name:
+						text += " " + user.last_name
+
+				text += ")"
+
+			return await client.edit_message(event.chat, event.message, text)
 
 if config.comment_in_channels == True:
 	@client.on(NewMessage(incoming=True, func=lambda e: e.is_channel and e.chat and e.chat.broadcast))
