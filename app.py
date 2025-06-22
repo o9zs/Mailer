@@ -62,11 +62,11 @@ if config.auto_respond == True:
 
 		console.log(f"[cyan]Responded to [bold white]{sender.first_name}[/bold white][/cyan]")
 
-	@client.on(NewMessage(outgoing=True, func=lambda e: e.chat.is_self))
+	@client.on(NewMessage(outgoing=True))
 	async def cache(event: NewMessage.Event):
 		me = await client.get_me()
 
-		if event.raw_text.startswith(".cache "):
+		if event.chat.id == me.id and event.raw_text.startswith(".cache "):
 			user = event.raw_text.split()[1]
 
 			try:
