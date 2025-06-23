@@ -66,7 +66,7 @@ if config.auto_respond == True:
 	async def cache(event: NewMessage.Event):
 		me = await client.get_me()
 
-		if event.chat.id == me.id and event.raw_text.startswith(".cache "):
+		if event.chat and event.chat.id == me.id and event.raw_text.startswith(".cache "):
 			user = event.raw_text.split()[1]
 
 			try:
